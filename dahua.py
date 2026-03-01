@@ -82,9 +82,6 @@ class DahuaController:
         self._socket.send(GET_SOUND)
         get_soundInfo = self.receive_msg()
         self.sound = get_soundInfo.split(b'\x00')[0].decode('ascii')
-#        bot = telegram.Bot(token="", request=telegram.utils.request.Request(connect_timeout=20, read_timeout=20))
-#        chat_id = bot.get_updates()[-1].message.chat_id
-#        bot.send_message(chat_id='635172118', text=self.model + "   :  " + self.sound, timeout=120)
         return self.sound
 
     def get_ptz_info(self):

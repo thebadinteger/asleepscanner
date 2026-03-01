@@ -4,17 +4,14 @@ import time
 combinations = []
 top_logopass = {}
 working_hosts = []
-random_countries = []
 snapshots_counts = 0
 custom_brute_file = False
 snapshots_enabled = True
 ch_count = 0
-max_ips = 0
 index = 0
 total = 0
 state = 0.0
 
-global_country = ''
 global_ports = ["37777"]
 
 tmp_masscan_file = 'res_scan.txt'

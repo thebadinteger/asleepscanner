@@ -11,15 +11,12 @@ from pathlib import Path
 from queue import Queue
 
 from colorama import init
-from countrycode import countrycode
 from pyfiglet import Figlet
 
 import config
 import export
 import utils
-from bot import Poster
 from brute import BruteThread
-from geolocation import IPDenyGeolocationToIP
 from snapshot import ScreenshotThread
 
 # TODO: make bruteforce core function
@@ -140,10 +137,6 @@ def get_args():
                         help='don\'t make SMART PSS .xml files')
     parser.add_argument('--dead', dest='dead_cams', action='store_true', default=False,
                         help='write not bruted cams to dead_cams.txt file')
-    parser.add_argument('--country', dest='country',
-                        action='store_true', default=False, help='scan by country')
-    parser.add_argument('--random-country', dest='random_country', action='store_true', default=False,
-                        help='scan by random country')
     parser.add_argument('-d', '--debug', dest='debug',
                         action='store_true', default=False, help='debug output')
 
@@ -151,10 +144,6 @@ def get_args():
         parser.print_help()
         sys.exit()                 
     args = parser.parse_args()
-
-    country = ''
-    city = ''
-    count = 0
     
     config.snapshots_enabled = args.snapshots_enabled
 
@@ -166,63 +155,6 @@ def get_args():
 
     if args.masscan_resume:
         args.brute_only = False
-
-    if args.random_country:
-        args.brute_only = False
-        count = 600000
-        total_count = 0
-        total_range = []
-
-        while config.max_ips < count:
-            country = random.choice(countrycode.data['country_name'])
-            for stored_c in list(dict.fromkeys(config.random_countries)):
-                if country is stored_c:
-                   continue
-            locator = IPDenyGeolocationToIP(country, city)
-            try:
-                range_list = locator.get_random_ranges(max_ips=int(count), day_ranges=True)
-            except Exception as e:
-                config.logging.debug(e)
-                continue
-            total_range += range_list
-            slash = ['|', '/', ' ', '-']
-            print(f'Searching for a bright-day ip-ranges {random.choice(slash)}', end='\r')
-            time.sleep(2) # spell from ban
-            for cidr in range_list:
-                count2 = IPDenyGeolocationToIP.get_cidr_count(cidr)
-                total_count += count2
-            config.max_ips = total_count
-        else:
-             config.logging.info('Generated %s IPs from %s' % (total_count, list(dict.fromkeys(config.random_countries))))
-             config.global_country = random.choice(config.random_countries)
-             file = open(config.tmp_masscan_file, 'w')
-             file.write("\n".join(total_range))
-             file.close()
-             args.scan_file = config.tmp_masscan_file
-
-    if args.country:
-        args.brute_only = False
-        country = input('Enter country name (defaut random): ')
-        if not country:
-            country = random.choice(countrycode.data['country_name'])
-            print('Selected %s' % country)
-        config.global_country = country
-        city = input('Enter city name (default none): ')
-        count = input('Maximum IPs (default 1000000): ') or 1000000
-        locator = IPDenyGeolocationToIP(country, city)
-        range_list = locator.get_random_ranges(max_ips=int(count))
-        total_count = 0
-        for cidr in range_list:
-            count3 = IPDenyGeolocationToIP.get_cidr_count(cidr)
-            total_count += count3
-
-        config.logging.info('Generated %s IPs from %s' % (total_count, config.global_country))
-
-        file = open(config.tmp_masscan_file, 'w')
-        file.write("\n".join(range_list))
-        file.close()
-
-        args.scan_file = config.tmp_masscan_file
 
     if not args.brute_file:
         args.brute_file = config.tmp_masscan_file
@@ -246,7 +178,6 @@ def get_args():
 def main():
     init()
     print(Figlet(font='slant').renderText('asleep'))
-    print('https://t.me/asleep_cg\n')
 
     args = get_args()
     if args.debug:
@@ -265,23 +196,8 @@ def main():
         hosts = utils.masscan_parse(config.tmp_masscan_file)
         export.dead_cams(hosts)
 
-    # Configs for Telegram Bot:
-    ROOM_ID = '' # Channel ID
-    TOKEN = '' # Bot Token
-    SNAPSHOT_DIR = Path.cwd() / config.snapshots_folder
-    """ delete=True removes snapshots after posting """
-    #poster = Poster(SNAPSHOT_DIR, TOKEN, ROOM_ID, delete=False) 
-    #poster.start()  ### Start posting function
-
     if Path(config.snapshots_folder).exists():
-        c_error = False
-        if config.global_country:
-            try:
-                Path(config.snapshots_folder).rename(f'{config.global_country}_{config.start_datetime}')
-            except:
-                c_error = True
-        elif not config.global_country or c_error:
-            Path(config.snapshots_folder).rename(f'Snapshots_{config.start_datetime}')
+        Path(config.snapshots_folder).rename(f'Snapshots_{config.start_datetime}')
 
 
 if __name__ == '__main__':

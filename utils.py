@@ -45,7 +45,6 @@ def prepare_folders_and_files():
         if snapshots_folder.exists():
             rmtree(snapshots_folder)
         snapshots_folder.mkdir()
-        Path(snapshots_folder / 'trash').mkdir()
 
     # Create /reports/ and /reports/datetime
     reports_folder = Path(config.reports_folder) / Path(config.start_datetime)

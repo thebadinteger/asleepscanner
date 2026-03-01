@@ -1,4 +1,3 @@
-import imp
 import logging
 import os
 import xml.etree.ElementTree as ElTree
