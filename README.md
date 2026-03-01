@@ -30,7 +30,7 @@ EXAMPLES
             
 ##### Interactive:
 
-* `git clone https://github.com/d34db33f-1007/asleep_scanner.git`
+* `git clone https://github.com/thebadinteger/asleepscanner.git`
 * `pip3 install -r requirements.txt`
 * `python3 asleep.py --help`
 
@@ -44,4 +44,5 @@ EXAMPLES
 #### Requirements:
 besides content of **requirements.txt** this code needs [**masscan**](https://github.com/robertdavidgraham/masscan) and **Python 3.7+ >** \
 only for windows install [**WinPcap driver**](https://www.winpcap.org/)
+
 
